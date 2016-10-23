@@ -16,8 +16,17 @@ export function deactivate() {
 
 function refresh(): void {
     const config = vscode.workspace.getConfiguration()
-    const symbols = config.get('stockmon.stockSymbols', [])
-    symbols.forEach(symbol => refreshSymbol(symbol))
+    const configuredSymbols = config.get('stockmon.stockSymbols', [])
+    configuredSymbols.forEach(symbol => refreshSymbol(symbol))
+
+    // cleanup
+    for (let [existingSymbol, existingItem] of items.entries()) {
+        if (!(existingSymbol in configuredSymbols)) {
+            existingItem.hide()
+            existingItem.dispose()
+            items.delete(existingSymbol)
+        }
+    }
 }
 
 function refreshSymbol(symbol: string): void {
@@ -36,6 +45,17 @@ function refreshSymbol(symbol: string): void {
         }
 
         item.text = `${symbol}: $${responseObj.LastPrice}`
+        const config = vscode.workspace.getConfiguration()
+        const useColors = config.get('stockmon.useColors', false)
+        if (useColors) {
+            const change = responseObj.ChangePercent
+            const color = change > 0 ? 'lightgreen' :
+                change < 0 ? 'pink':
+                'white'
+            item.color = color
+        } else {
+            item.color = undefined
+        }
     },
     e => console.error(e))
 }

@@ -21,6 +21,11 @@
                     "type": "array",
                     "default": [],
                     "description": "The list of stock symbols to display in the status bar"
+                },
+                "stockmon.useColors": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, highlights items red when they're down and green when they're up."
                 }
             }
         }
