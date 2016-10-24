@@ -4,7 +4,7 @@ Keep an eye on your stocks while using VS Code, with the "Stocks" extension.
 
 ## Features
 
-Add as many stock symbols as you like to the status bar, and they will be updated every 60 seconds. Just set the setting `vscode-stocks.stockSymbols` to an array of stock symbols to monitor. Example:
+Add as many stock symbols as you like to the status bar, and they will be updated every 60 seconds. Just set `vscode-stocks.stockSymbols` to an array of stock symbols to monitor. Example:
 ```json
 "vscode-stocks.stockSymbols": [
     "msft",

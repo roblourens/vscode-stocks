@@ -1,8 +1,8 @@
 {
     "name": "vscode-stocks",
     "displayName": "Stocks",
-    "description": "Add stock symbols to the status bar that automatically update",
-    "version": "0.0.1",
+    "description": "Watch stock prices from the VS Code status bar",
+    "version": "0.0.2",
     "publisher": "roblourens",
     "repository": {
         "type": "git",
