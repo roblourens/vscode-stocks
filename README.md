@@ -1,20 +1,12 @@
-# dollabill README
+# Stocks
 
-This is the README for your extension "dollabill". After writing up a brief description, we recommend including the following sections.
+Keep an eye on your stocks while using VS Code, with the "Stocks" extension.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Add as many stock symbols as you like to the status bar, and they will be updated every 60 seconds.
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+![images/example.png](example)
 
 ## Extension Settings
 
