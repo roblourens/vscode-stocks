@@ -4,6 +4,10 @@
     "description": "Add stock symbols to the status bar that automatically update",
     "version": "0.0.1",
     "publisher": "roblourens",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/roblourens/vscode-stocks"
+    },
     "engines": {
         "vscode": "^1.5.0"
     },
@@ -14,7 +18,7 @@
         "*"
     ],
     "main": "./out/src/extension",
-    "icon": "./images/icon.png",
+    "icon": "images/icon.png",
     "contributes": {
         "configuration": {
             "properties": {
