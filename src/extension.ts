@@ -52,7 +52,8 @@ function refreshSymbol(symbol: string): void {
         const responseObj = JSON.parse(response)
 
         let item = items.get(symbol)
-        item.text = `${symbol.toUpperCase()}: $${responseObj.LastPrice}`
+        const price: number = responseObj.LastPrice
+        item.text = `${symbol.toUpperCase()} $${price.toFixed(2)}`
         const config = vscode.workspace.getConfiguration()
         const useColors = config.get('vscode-stocks.useColors', false)
         if (useColors) {
