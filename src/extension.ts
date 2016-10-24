@@ -17,34 +17,42 @@ export function deactivate() {
 function refresh(): void {
     const config = vscode.workspace.getConfiguration()
     const configuredSymbols = config.get('stockmon.stockSymbols', [])
-    configuredSymbols.forEach(symbol => refreshSymbol(symbol))
-
-    // cleanup
-    for (let [existingSymbol, existingItem] of items.entries()) {
-        if (!(existingSymbol in configuredSymbols)) {
-            existingItem.hide()
-            existingItem.dispose()
-            items.delete(existingSymbol)
-        }
+    if (!arrayEq(configuredSymbols, Array.from(items.keys()))) {
+        cleanup()
+        fillEmpty(configuredSymbols)
     }
+
+    configuredSymbols.forEach(symbol => refreshSymbol(symbol))
+}
+
+function fillEmpty(symbols: string[]): void {
+    symbols
+        .forEach((symbol, i) => {
+            // Enforce ordering with priority
+            const priority = symbols.length - i
+            const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority)
+            item.text = `${symbol}: $…`
+            item.show()
+            items.set(symbol, item)
+        })
+}
+
+function cleanup(): void {
+    items.forEach(item => {
+        item.hide()
+        item.dispose()
+    })
+
+    items = new Map<string, vscode.StatusBarItem>()
 }
 
 function refreshSymbol(symbol: string): void {
-    symbol = symbol.toUpperCase()
     const url = `http://dev.markitondemand.com/MODApis/Api/v2/Quote/json?symbol=${symbol}`
     httpGet(url).then(response => {
         const responseObj = JSON.parse(response)
 
-        let item: vscode.StatusBarItem
-        if (items.has(symbol)) {
-            item = items.get(symbol)
-        } else {
-            item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1)
-            item.show()
-            items.set(symbol, item)
-        }
-
-        item.text = `${symbol}: $${responseObj.LastPrice}`
+        let item = items.get(symbol)
+        item.text = `${symbol.toUpperCase()}: $${responseObj.LastPrice}`
         const config = vscode.workspace.getConfiguration()
         const useColors = config.get('stockmon.useColors', false)
         if (useColors) {
@@ -75,4 +83,10 @@ function httpGet(url): Promise<string> {
             })
         })
     })
+}
+
+function arrayEq(arr1: any[], arr2: any[]): boolean {
+    if (arr1.length !== arr2.length) return false
+
+    return !arr1.some((item, i) => item !== arr2[i])
 }
