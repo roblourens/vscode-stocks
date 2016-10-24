@@ -16,7 +16,7 @@ export function deactivate() {
 
 function refresh(): void {
     const config = vscode.workspace.getConfiguration()
-    const configuredSymbols = config.get('stockmon.stockSymbols', [])
+    const configuredSymbols = config.get('vscode-stocks.stockSymbols', [])
     if (!arrayEq(configuredSymbols, Array.from(items.keys()))) {
         cleanup()
         fillEmpty(configuredSymbols)
@@ -54,7 +54,7 @@ function refreshSymbol(symbol: string): void {
         let item = items.get(symbol)
         item.text = `${symbol.toUpperCase()}: $${responseObj.LastPrice}`
         const config = vscode.workspace.getConfiguration()
-        const useColors = config.get('stockmon.useColors', false)
+        const useColors = config.get('vscode-stocks.useColors', false)
         if (useColors) {
             const change = responseObj.ChangePercent
             const color = change > 0 ? 'lightgreen' :

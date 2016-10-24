@@ -1,7 +1,7 @@
 {
-    "name": "dollabill",
-    "displayName": "stock-monitor",
-    "description": "",
+    "name": "vscode-stocks",
+    "displayName": "Stocks",
+    "description": "Add stock symbols to the status bar that automatically update",
     "version": "0.0.1",
     "publisher": "roblourens",
     "engines": {
@@ -17,12 +17,12 @@
     "contributes": {
         "configuration": {
             "properties": {
-                "stockmon.stockSymbols": {
+                "vscode-stocks.stockSymbols": {
                     "type": "array",
                     "default": [],
                     "description": "The list of stock symbols to display in the status bar"
                 },
-                "stockmon.useColors": {
+                "vscode-stocks.useColors": {
                     "type": "boolean",
                     "default": false,
                     "description": "If true, highlights items red when they're down and green when they're up."
