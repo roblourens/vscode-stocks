@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import * as http from 'http'
+import * as https from 'https'
 
 let items: Map<string, vscode.StatusBarItem>
 export function activate(context: vscode.ExtensionContext) {
@@ -17,12 +17,14 @@ export function deactivate() {
 function refresh(): void {
     const config = vscode.workspace.getConfiguration()
     const configuredSymbols = config.get('vscode-stocks.stockSymbols', [])
+        .map(symbol => symbol.toUpperCase())
+
     if (!arrayEq(configuredSymbols, Array.from(items.keys()))) {
         cleanup()
         fillEmpty(configuredSymbols)
     }
 
-    configuredSymbols.forEach(symbol => refreshSymbol(symbol))
+    refreshSymbols(configuredSymbols)
 }
 
 function fillEmpty(symbols: string[]): void {
@@ -46,32 +48,42 @@ function cleanup(): void {
     items = new Map<string, vscode.StatusBarItem>()
 }
 
-function refreshSymbol(symbol: string): void {
-    const url = `http://dev.markitondemand.com/MODApis/Api/v2/Quote/json?symbol=${symbol}`
+function refreshSymbols(symbols: string[]): void {
+    const url = `https://www.google.com/finance/info?q=${symbols.join(',')}`
     httpGet(url).then(response => {
+        // Remove prepended newline+comment
+        response = response.substr(3)
         const responseObj = JSON.parse(response)
-
-        let item = items.get(symbol)
-        const price: number = responseObj.LastPrice
-        item.text = `${symbol.toUpperCase()} $${price.toFixed(2)}`
-        const config = vscode.workspace.getConfiguration()
-        const useColors = config.get('vscode-stocks.useColors', false)
-        if (useColors) {
-            const change = responseObj.ChangePercent
-            const color = change > 0 ? 'lightgreen' :
-                change < 0 ? 'pink':
-                'white'
-            item.color = color
-        } else {
-            item.color = undefined
+        if (!Array.isArray(responseObj)) {
+            throw new Error('Invalid response: ' + response)
         }
-    },
-    e => console.error(e))
+
+        responseObj.forEach(updateItemWithSymbolResult)
+    }).catch(e => console.error(e))
+}
+
+function updateItemWithSymbolResult(symbolResult) {
+    const symbol = symbolResult.t.toUpperCase()
+    const item = items.get(symbol)
+    const price: number = symbolResult.l_cur
+
+    item.text = `${symbol.toUpperCase()} $${price}`
+    const config = vscode.workspace.getConfiguration()
+    const useColors = config.get('vscode-stocks.useColors', false)
+    if (useColors) {
+        const change = parseFloat(symbolResult.c)
+        const color = change > 0 ? 'lightgreen' :
+            change < 0 ? 'pink':
+            'white'
+        item.color = color
+    } else {
+        item.color = undefined
+    }
 }
 
 function httpGet(url): Promise<string> {
     return new Promise((resolve, reject) => {
-        http.get(url, response => {
+        https.get(url, response => {
             let responseData = '';
             response.on('data', chunk => responseData += chunk);
             response.on('end', () => {
