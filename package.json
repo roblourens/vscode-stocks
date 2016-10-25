@@ -8,6 +8,9 @@
         "type": "git",
         "url": "https://github.com/roblourens/vscode-stocks"
     },
+    "bugs": {
+        "url": "https://github.com/roblourens/vscode-stocks/issues"
+    },
     "engines": {
         "vscode": "^1.5.0"
     },
