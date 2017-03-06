@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import * as https from 'https'
+import { XmlEntities as entities } from 'html-entities'
 
 let items: Map<string, vscode.StatusBarItem>
 export function activate(context: vscode.ExtensionContext) {
@@ -32,8 +33,9 @@ function fillEmpty(symbols: string[]): void {
         .forEach((symbol, i) => {
             // Enforce ordering with priority
             const priority = symbols.length - i
+            const nameRegex = /^([\w]+?:)?(\w+)$/i
             const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority)
-            item.text = `${symbol}: $…`
+            item.text = `${nameRegex.exec(symbol)[2]}: $…`
             item.show()
             items.set(symbol, item)
         })
@@ -64,10 +66,16 @@ function refreshSymbols(symbols: string[]): void {
 
 function updateItemWithSymbolResult(symbolResult) {
     const symbol = symbolResult.t.toUpperCase()
-    const item = items.get(symbol)
-    const price: number = symbolResult.l_cur
-
-    item.text = `${symbol.toUpperCase()} $${price}`
+    const exchange = symbolResult.e.toUpperCase()   
+    var item = items.get(symbol)
+    if (item === undefined){
+        item = items.get(`${exchange}:${symbol}`)
+    }
+    const currencyRegex = /^(\&#\d{4};)?(\d+\.\d+)$/
+    var currencyMatch = currencyRegex.exec(symbolResult.l_cur)
+    const price: number = +currencyMatch[2]
+    var currency = (currencyMatch[1]) ? entities.decode(currencyMatch[1]) : "$"
+    item.text = `${symbol.toUpperCase()} ${currency}${price}`
     const config = vscode.workspace.getConfiguration()
     const useColors = config.get('vscode-stocks.useColors', false)
     if (useColors) {
