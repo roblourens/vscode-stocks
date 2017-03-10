@@ -33,7 +33,7 @@ function fillEmpty(symbols: string[]): void {
         .forEach((symbol, i) => {
             // Enforce ordering with priority
             const priority = symbols.length - i
-            const nameRegex = /^([\w]+?:)?(\w+)$/i
+            const nameRegex = /^(\w+?:)?(.+)$/i
             const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, priority)
             item.text = `${nameRegex.exec(symbol)[2]}: $…`
             item.show()
@@ -71,9 +71,9 @@ function updateItemWithSymbolResult(symbolResult) {
     if (item === undefined){
         item = items.get(`${exchange}:${symbol}`)
     }
-    const currencyRegex = /^(\&#\d{4};)?(\d+\.\d+)$/
+    const currencyRegex = /^(\&#\d{4};|[a-z]+)?(\d+\.\d+)$/i
     var currencyMatch = currencyRegex.exec(symbolResult.l_cur)
-    const price: number = +currencyMatch[2]
+    const price = currencyMatch[2]
     var currency = (currencyMatch[1]) ? entities.decode(currencyMatch[1]) : "$"
     item.text = `${symbol.toUpperCase()} ${currency}${price}`
     const config = vscode.workspace.getConfiguration()
