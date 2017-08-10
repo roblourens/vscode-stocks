@@ -6,7 +6,7 @@ export function activate(context: vscode.ExtensionContext) {
     items = new Map<string, vscode.StatusBarItem>();
 
     refresh()
-    setInterval(refresh, 60*1e3)
+    setInterval(refresh, 60 * 1e3)
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(refresh))
 }
 
@@ -63,18 +63,25 @@ function refreshSymbols(symbols: string[]): void {
 }
 
 function updateItemWithSymbolResult(symbolResult) {
+    const config = vscode.workspace.getConfiguration()
+    const useColors = config.get('vscode-stocks.useColors', false)
+    const showPercent = config.get('vscode-stocks.showPercent', false)
+
     const symbol = symbolResult.t.toUpperCase()
     const item = items.get(symbol)
     const price: number = symbolResult.l_cur
+    const pchange: number = symbolResult.cp
 
-    item.text = `${symbol.toUpperCase()} $${price}`
-    const config = vscode.workspace.getConfiguration()
-    const useColors = config.get('vscode-stocks.useColors', false)
+    if (showPercent) {
+        item.text = `${symbol.toUpperCase()} $${price} [${pchange}%]`
+    } else {
+        item.text = `${symbol.toUpperCase()} $${price}`
+    }
     if (useColors) {
         const change = parseFloat(symbolResult.c)
         const color = change > 0 ? 'lightgreen' :
-            change < 0 ? 'pink':
-            'white'
+            change < 0 ? 'pink' :
+                'white'
         item.color = color
     } else {
         item.color = undefined
