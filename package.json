@@ -2,7 +2,7 @@
     "name": "vscode-stocks",
     "displayName": "Stocks",
     "description": "Watch stock prices from the VS Code status bar",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "publisher": "roblourens",
     "repository": {
         "type": "git",
