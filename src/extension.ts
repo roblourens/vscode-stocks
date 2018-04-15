@@ -48,30 +48,28 @@ function cleanup(): void {
     items = new Map<string, vscode.StatusBarItem>()
 }
 
-function refreshSymbols(symbols: string[]): void {
-    const url = `https://www.google.com/finance/info?q=${symbols.join(',')}`
-    httpGet(url).then(response => {
-        // Remove prepended newline+comment
-        response = response.substr(3)
+async function refreshSymbols(symbols: string[]): Promise<void> {
+    const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols.join(',')}&types=quote`
+    try {
+        const response = await httpGet(url)
         const responseObj = JSON.parse(response)
-        if (!Array.isArray(responseObj)) {
-            throw new Error('Invalid response: ' + response)
-        }
-
-        responseObj.forEach(updateItemWithSymbolResult)
-    }).catch(e => console.error(e))
+        Object.keys(responseObj)
+            .forEach(key => updateItemWithSymbolQuote(responseObj[key].quote))
+    } catch (e) {
+        throw new Error(`Invalid response: ${e.message}`);
+    }
 }
 
-function updateItemWithSymbolResult(symbolResult) {
-    const symbol = symbolResult.t.toUpperCase()
+function updateItemWithSymbolQuote(symbolQuote) {
+    const symbol = symbolQuote.symbol.toUpperCase()
     const item = items.get(symbol)
-    const price: number = symbolResult.l_cur
+    const price: number = symbolQuote.latestPrice
 
-    item.text = `${symbol.toUpperCase()} $${price}`
+    item.text = `${symbol.toUpperCase()} $${price.toFixed(2)}`
     const config = vscode.workspace.getConfiguration()
     const useColors = config.get('vscode-stocks.useColors', false)
     if (useColors) {
-        const change = parseFloat(symbolResult.c)
+        const change = parseFloat(symbolQuote.change)
         const color = change > 0 ? 'lightgreen' :
             change < 0 ? 'pink':
             'white'
@@ -101,5 +99,5 @@ function httpGet(url): Promise<string> {
 function arrayEq(arr1: any[], arr2: any[]): boolean {
     if (arr1.length !== arr2.length) return false
 
-    return !arr1.some((item, i) => item !== arr2[i])
+    return arr1.every((item, i) => item === arr2[i])
 }
