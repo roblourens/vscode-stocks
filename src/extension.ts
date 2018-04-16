@@ -49,6 +49,10 @@ function cleanup(): void {
 }
 
 async function refreshSymbols(symbols: string[]): Promise<void> {
+    if (!symbols.length) {
+        return;
+    }
+
     const url = `https://api.iextrading.com/1.0/stock/market/batch?symbols=${symbols.join(',')}&types=quote`
     try {
         const response = await httpGet(url)
